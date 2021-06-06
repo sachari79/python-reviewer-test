@@ -2,18 +2,18 @@ import subprocess
 import sys
 import boto3
 import datetime
-from shlex import split
+from shlex import quote
  
 s3 = boto3.client('s3')
  
-def main(argv):
-    cmd = argv
+def main(argv):    
+    cmd = quote(''.join(argv))
     log_file_name = datetime.datetime.utcnow().strftime("%m_%d_%Y") + "_logfile"
     kickoff_subprocess(cmd, log_file_name)
     upload_output_to_S3(log_file_name)
  
 def kickoff_subprocess(cmd, log_file_name):
-    process = subprocess.call(cmd, shell=True)
+    process = subprocess.call(quote(cmd), shell=True)
     with open(log_file_name, "a+") as file:
         timestamp = datetime.datetime.utcnow().strftime("%m/%d/%Y, %H:%M:%S")
         output = timestamp + " Command: "+ cmd[0] + " | Return Code: " + str(process) + "\n"
